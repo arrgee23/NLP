@@ -20,37 +20,72 @@ class S(BaseHTTPRequestHandler):
     def _set_headers(self):
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
-        
+        self.send_header('charset','utf-8')
         self.end_headers()
 
     def do_GET(self):
         self._set_headers()
-        p = urlparse.parse_qs(self.path);
-        #print(p);
+        outputStr = '<table style="width:50%"><tr><th>Character</th><th>Count</th></tr>'
+        isFIleOutput = 0
+        newpath = self.path
         if(self.path=="/"):
-            self.path="/index.html"
+            isFIleOutput = 1
+            newpath="/index.html"
+            
         if(self.path.startswith("/result.html")):
-            self.path="/result.html"
+            isFIleOutput = 0
+            p = urlparse.parse_qs(self.path)
+            extractedStr = p['/result.html?taName'][0]
+            #print("parsedResult: \n]")
+            print("decoded")
+            #newpath="/result.html"
+            #decoded = (extractedStr.decoded('utf-8'))
+            decoded = extractedStr.decode('utf8')
+            print(decoded)
+            d = {}
+            for char in decoded:
+                d[char] = 0
+            
+            for c in decoded:
+                d[c] = d[c]+1
+            
+            
+            print("_________")
+            print(d)
+
+            
+            for elem in d.keys():
+                outputStr = outputStr +"<tr>" + "<td>"+elem.encode('utf-8') +"</td>"+ "<td>"+str(d[elem])+"<td>" +"<tr>"
+            
+
 
 
         #print(self.raw_requestline)
 
         #Open the static file requested and send it
-        print(curdir + sep + self.path)
-        f = open(curdir + sep + self.path) 
-        
-        self.wfile.write(f.read())
-        f.close()
+        if (isFIleOutput == 1):
+            print("constructed url")
+            print(curdir + sep + newpath)
+            f = open(curdir + sep +newpath) 
+            self.wfile.write(f.read())
+            f.close()
+        else:
+            self.wfile.write(outputStr)
 
     def do_HEAD(self):
         self._set_headers()
         
     def do_POST(self):
         # Doesn't do anything with posted data
+        content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
+        post_data = self.rfile.read(content_length) # <--- Gets the data itself
+        print("post data")
+        print(post_data)
         self._set_headers()
-        self.wfile.write("<html><body><h1>POST!</h1></body></html>")
+        self.wfile.write(post_data)
         
-def run(server_class=HTTPServer, handler_class=S, port=80):
+        
+def run(server_class=HTTPServer, handler_class=S, port=1835):
     server_address = ('', port)
     httpd = server_class(server_address, handler_class)
     
@@ -59,7 +94,7 @@ def run(server_class=HTTPServer, handler_class=S, port=80):
 
 if __name__ == "__main__":
     from sys import argv
-
+    
     if len(argv) == 2:
         run(port=int(argv[1]))
     else:
