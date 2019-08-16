@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html lang = "en">
+  <head>
+    <title>Next Word Prediction</title>
+    <meta charset = "UTF-8" />
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $(document).keydown(function(e) {
+          if (e.keyCode == '32') {
+            loadDoc(document.getElementById("textarea").value);
+          }
+        });
+      });
+    </script>
+    
+  </head>
+  <body>
+    <h1>Next word prediction</h1>
+    <h3>keep on typing. Upon pressing spacebar the next suggested word will occur</h3>
+    <form action = "/" method = "POST">
+        <fieldset>
+            <textarea id="textarea" name = "Input text" placeholder = "your text here"></textarea>
+            
+        </fieldset>
+    </form>
+    
+    <h3>The top 5 predicted next words:</h3>
+    
+    <div id="demo">
+    
+    </div>
+  
+
+    <script>
+        function loadDoc(a) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function() {
+                if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("demo").innerHTML = this.responseText;
+                }
+            };
+            xhttp.open("GET", "ajax?words="+a, true);
+            xhttp.send();
+        }
+    
+    </script>
+  </body>
+</html>
